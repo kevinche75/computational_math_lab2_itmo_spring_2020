@@ -36,6 +36,21 @@ class Function():
     def __str__(self):
         return self.description
 
+
+def comp_integration(function: Function, accuracy):
+    function.check_discontinuity()
+    n = 1
+    while True:
+        h = (function.right_border - function.left_border)/n
+        riemann_sum = (function.comp_y(function.left_border) + function.comp_y(function.right_border))/2
+        for i in range(1, n):
+            riemann_sum +=function.comp_y(function.left_border + i*h)
+        riemann_sum = function.sign*riemann_sum*h
+        current_accuracy = function.comp_accuracy(riemann_sum)
+        if current_accuracy is not None and current_accuracy < accuracy: return riemann_sum, n, current_accuracy
+        function.integration = riemann_sum
+        n*=2
+
 f1 = {
     'description': 'x + 5',
     'special_points': {
@@ -81,20 +96,6 @@ f5 = {
     'function': lambda x: math.sin(x)/x
 }
 
-def comp_integration(function: Function, accuracy):
-    function.check_discontinuity()
-    n = 1
-    while True:
-        h = (function.right_border - function.left_border)/n
-        riemann_sum = (function.comp_y(function.left_border) + function.comp_y(function.right_border))/2
-        for i in range(1, n):
-            riemann_sum +=function.comp_y(function.left_border + i*h)
-        riemann_sum = function.sign*riemann_sum*h
-        current_accuracy = function.comp_accuracy(riemann_sum)
-        if current_accuracy is not None and current_accuracy < accuracy: return riemann_sum, n, current_accuracy
-        function.integration = riemann_sum
-        n*=2
-
 def read_parametres():
     print("Введите номер функции, интеграл которой вы хотите вычислить")
     print("1. {0}\n2. {1}\n3. {2}\n4. {3}\n5. {4}".format(f1["description"], f2["description"], f3["description"], f4["description"], f5["description"]))
@@ -120,7 +121,7 @@ def read_parametres():
     print("Введите точность")
     while True:
         try:
-            accuracy = float(input().strip())
+            accuracy = abs(float(input().strip()))
             break
         except Exception:
             print("Неверный формат числа. Попробуйте ещё раз")
@@ -135,4 +136,3 @@ def read_parametres():
         print("Функция:\n{0}\nПределы интегрирования:\n{1}\nВведенная точность\n{2}\nПолученное значение интеграла:\n{3}\nКоличество разбиений:\n{4}\nПолученная погрешность:\n{5}".format(f["description"], borders, accuracy, integration, n, result_accuracy))
     except AssertionError as inst:
         print(inst.args[0])
-        
